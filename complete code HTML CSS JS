@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VaxTrack – Patient & Vaccine Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --mint:#00c9a7;--mint-lt:#e6faf6;--mint-dk:#00967d;--mint-mid:#a0e8d8;
+  --navy:#0b1f3a;--navy2:#162d4e;--navy3:#1e3a5f;
+  --amber:#f59e0b;--amber-lt:#fef3c7;
+  --rose:#f43f5e;--rose-lt:#fff1f4;
+  --purple:#7c3aed;--purple-lt:#f5f3ff;
+  --green:#10b981;--green-lt:#ecfdf5;
+  --text:#0b1f3a;--text2:#4a5568;--text3:#94a3b8;
+  --card:#fff;--bg:#f1f5fb;--bg2:#f8fafc;
+  --border:#e2e8f0;--border2:#cbd5e1;
+  --font:'Inter',sans-serif;--serif:'Playfair Display',serif;
+  --r:12px;--shadow:0 1px 12px rgba(11,31,58,.07);--shadow2:0 8px 40px rgba(11,31,58,.14);
+  --sidebar:256px;--topbar:60px;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;min-height:100vh}
+
+/* ── LAYOUT ── */
+.app{display:flex;min-height:100vh}
+.sidebar{width:var(--sidebar);background:var(--navy);display:flex;flex-direction:column;position:fixed;inset:0 auto 0 0;z-index:50;overflow-y:auto;transition:transform .3s}
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh}
+
+/* ── SIDEBAR ── */
+.logo{padding:22px 20px 16px;border-bottom:1px solid rgba(255,255,255,.07)}
+.logo-row{display:flex;align-items:center;gap:10px}
+.logo-mark{width:36px;height:36px;background:var(--mint);border-radius:10px;display:flex;align-items:center;justify-content:center}
+.logo-mark i{color:#fff;font-size:16px}
+.logo-text{font-size:20px;font-weight:700;color:#fff;letter-spacing:-.4px}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.32);margin-top:3px;padding-left:46px}
+.nav{flex:1;padding:12px 10px}
+.nav-sec{font-size:9.5px;letter-spacing:1.2px;color:rgba(255,255,255,.22);text-transform:uppercase;padding:14px 12px 5px}
+.nb{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:9px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.52);transition:all .14s;border:none;background:none;width:100%;text-align:left;font-family:var(--font);margin-bottom:1px}
+.nb i{width:16px;text-align:center;font-size:13px;flex-shrink:0}
+.nb:hover{background:rgba(255,255,255,.07);color:#fff}
+.nb.on{background:rgba(0,201,167,.15);color:var(--mint);font-weight:500}
+.nb .nbadge{margin-left:auto;background:var(--rose);color:#fff;font-size:9px;font-weight:700;padding:2px 6px;border-radius:20px}
+.user-box{margin:10px;padding:12px 13px;background:rgba(255,255,255,.05);border-radius:var(--r);border:1px solid rgba(255,255,255,.07)}
+.user-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.u-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--mint),#0ea5e9);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff}
+.u-name{font-size:13px;font-weight:600;color:#fff}
+.u-meta{font-size:10.5px;color:rgba(255,255,255,.38);margin-top:1px}
+.u-pill{display:inline-flex;align-items:center;gap:5px;font-size:10px;padding:3px 9px;border-radius:20px;background:rgba(0,201,167,.14);color:var(--mint);font-weight:500}
+.u-dot{width:5px;height:5px;border-radius:50%;background:var(--mint)}
+
+/* ── TOPBAR ── */
+.topbar{height:var(--topbar);background:var(--card);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 26px;position:sticky;top:0;z-index:40}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.page-title{font-size:18px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+.topbar-right{display:flex;align-items:center;gap:9px}
+.icon-btn{width:34px;height:34px;border-radius:8px;background:var(--bg);border:1px solid
+var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);font-size:13px;position:relative;transition:all .13s}
+.icon-btn:hover{background:var(--border)}
+.notif-pip{position:absolute;top:6px;right:6px;width:6px;height:6px;background:var(--rose);border-radius:50%;border:1.5px solid var(--card)}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:8px;border:none;cursor:pointer;font-size:13px;font-family:var(--font);font-weight:500;transition:all .13s;white-space:nowrap}
+.btn i{font-size:11px}
+.btn-mint{background:var(--mint);color:#fff}.btn-mint:hover{background:var(--mint-dk)}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border)}.btn-ghost:hover{background:var(--bg)}
+.btn-navy{background:var(--navy);color:#fff}.btn-navy:hover{background:var(--navy2)}
+.btn-rose{background:var(--rose);color:#fff}.btn-rose:hover{background:#e0284a}
+.btn-purple{background:var(--purple);color:#fff}.btn-purple:hover{background:#6d28d9}
+.btn-amber{background:var(--amber);color:#fff}.btn-amber:hover{background:#d97706}
+.btn-sm{padding:6px 12px;font-size:12px}
+
+/* ── CONTENT + PAGES ── */
+.content{padding:22px 26px;flex:1}
+.page{display:none;animation:fadeUp .2s ease}
+.page.on{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── TAGS ── */
+.tag{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:500;white-space:nowrap}
+.tg-green{background:var(--green-lt);color:#065f46}
+.tg-amber{background:var(--amber-lt);color:#92400e}
+.tg-rose{background:var(--rose-lt);color:#9f1239}
+.tg-gray{background:#f1f5f9;color:#64748b}
+.tg-mint{background:var(--mint-lt);color:var(--mint-dk)}
+.tg-navy{background:#e8edf5;color:var(--navy)}
+.tg-purple{background:var(--purple-lt);color:var(--purple)}
+
+/* ── CARD ── */
+.card{background:var(--card);border-radius:var(--r);border:1px solid var(--border);overflow:hidden}
+.card-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:7px}
+.card-title i{color:var(--mint)}
+.card-body{padding:16px 18px}
+.card-body.np{padding:0}
+
+/* ── TABLE ── */
+table{width:100%;border-collapse:collapse}
+thead th{text-align:left;padding:10px 15px;font-size:10.5px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--border);background:var(--bg2);white-space:nowrap}
+tbody td{padding:12px 15px;font-size:13px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--bg2)}
+.act{background:none;border:none;cursor:pointer;color:var(--text3);padding:4px 5px;border-radius:6px;font-size:13px;transition:all .12s;font-family:var(--font)}
+.act:hover{background:var(--bg);color:var(--text)}
+.act.del:hover{color:var(--rose);background:var(--rose-lt)}
+.act.cert-act:hover{color:var(--mint-dk);background:var(--mint-lt)}
+.act.vax-act:hover{color:var(--purple);background:var(--purple-lt)}
+
+/* ── FORMS ── */
+.form-row{margin-bottom:14px}
+.lbl{display:block;font-size:11px;font-weight:600;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+.req{color:var(--rose)}
+.inp,.sel{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:var(--font);color:var(--text);background:var(--bg2);outline:none;transition:border .14s,background .14s;appearance:auto}
+.inp:focus,.sel:focus{border-color:var(--mint);background:#fff;box-shadow:0 0 0 3px rgba(0,201,167,.1)}
+.inp::placeholder{color:var(--text3)}
+textarea.inp{resize:vertical;min-height:66px}
+.inp.err{border-color:var(--rose)}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.icon-inp{position:relative}
+.icon-inp
+i{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text3);font-size:12px;pointer-events:none}
+.icon-inp .inp{padding-left:32px}
+.search-wrap{display:flex;align-items:center;gap:7px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:7px 11px}
+.search-wrap i{color:var(--text3);font-size:12px;flex-shrink:0}
+.search-wrap input{border:none;background:none;outline:none;font-size:13px;font-family:var(--font);color:var(--text);width:100%}
+.vtoggle{display:flex;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.vbtn{padding:6px 11px;background:none;border:none;cursor:pointer;font-size:12px;color:var(--text3);transition:all .12s}
+.vbtn.on{background:var(--navy);color:#fff}
+.vbtn:hover:not(.on){background:var(--bg)}
+
+/* ── STATS ── */
+.stat-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.sbox{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:12px;transition:box-shadow .14s}
+.sbox:hover{box-shadow:var(--shadow)}
+.sbox-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.sbox-num{font-size:22px;font-weight:700;line-height:1;color:var(--text)}
+.sbox-lbl{font-size:11px;color:var(--text3);margin-top:2px}
+
+/* ══════════════════════════════
+   PATIENTS 2-PANEL
+══════════════════════════════ */
+.pat-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.pat-workspace{display:grid;grid-template-columns:1fr;gap:16px;align-items:start;transition:grid-template-columns .25s}
+.pat-workspace.has-panel{grid-template-columns:1fr 440px}
+.pat-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.pcard{background:var(--card);border:1.5px solid var(--border);border-radius:var(--r);padding:16px;cursor:pointer;transition:all .17s;position:relative}
+.pcard:hover{border-color:var(--mint);box-shadow:0 4px 18px rgba(0,201,167,.1);transform:translateY(-2px)}
+.pcard.active{border-color:var(--mint);background:linear-gradient(135deg,var(--mint-lt),#fff)}
+.pcard.active::before{content:'';position:absolute;top:12px;right:12px;width:8px;height:8px;border-radius:50%;background:var(--mint)}
+.pc-top{display:flex;align-items:flex-start;gap:11px;margin-bottom:10px}
+.pc-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.pc-name{font-size:13.5px;font-weight:600;line-height:1.2}
+.pc-id{font-size:10px;color:var(--text3);font-family:monospace;margin-top:2px}
+.pc-meta{font-size:11px;color:var(--text2);margin-top:2px}
+.pc-rows{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.pc-row{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--text2)}
+.pc-row i{color:var(--text3);width:11px;font-size:10px;flex-shrink:0}
+.pc-foot{display:flex;align-items:center;justify-content:space-between;border-top:1px solid var(--border);padding-top:9px}
+.pc-vcount{font-size:11px;color:var(--text3);display:flex;align-items:center;gap:5px}
+.pc-vcount b{font-size:15px;font-weight:700;color:var(--text)}
+
+/* ── RIGHT PANEL ── */
+.pat-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow2);position:sticky;top:calc(var(--topbar) + 14px);max-height:calc(100vh - var(--topbar) - 30px);overflow-y:auto;animation:slideIn .22s ease}
+@keyframes slideIn{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:translateX(0)}}
+.panel-head{display:flex;align-items:center;justify-content:space-between;padding:15px 20px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--card);z-index:5}
+.panel-title{font-size:14px;font-weight:700;display:flex;align-items:center;gap:8px}
+.panel-title i{color:var(--mint)}
+.panel-x{width:26px;height:26px;border-radius:7px;background:var(--bg);border:1px solid
+var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:12px;transition:all .12s}
+.panel-x:hover{background:var(--rose-lt);color:var(--rose);border-color:#fecdd3}
+.prof-banner{background:linear-gradient(130deg,var(--navy),var(--navy3));padding:18px 20px;display:flex;align-items:center;gap:13px;position:relative;overflow:hidden}
+.prof-banner::after{content:'';position:absolute;top:-24px;right:-24px;width:90px;height:90px;background:rgba(0,201,167,.12);border-radius:50%}
+.prof-av{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0;border:2px solid rgba(255,255,255,.2)}
+.prof-name{font-size:16px;font-weight:700;color:#fff;line-height:1.2}
+.prof-sub{font-size:11.5px;color:rgba(255,255,255,.5);margin-top:3px}
+.prof-id{font-size:10px;color:rgba(255,255,255,.3);font-family:monospace;margin-top:2px}
+.ptabs{display:flex;border-bottom:1px solid var(--border);overflow-x:auto}
+.ptab{padding:10px 13px;border:none;background:none;cursor:pointer;font-size:12px;font-family:var(--font);color:var(--text3);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .14s;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0}
+.ptab i{font-size:11px}
+.ptab.on{color:var(--mint-dk);border-bottom-color:var(--mint);font-weight:600}
+.ptab:hover:not(.on){color:var(--text)}
+.ptab-body{display:none;padding:16px 20px}
+.ptab-body.on{display:block;animation:fadeUp .15s}
+.ifield-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.ifield{background:var(--bg2);border-radius:8px;padding:10px 12px}
+.ifield.full{grid-column:1/-1}
+.ifield-lbl{font-size:9.5px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px}
+.ifield-val{font-size:12.5px;font-weight:500;color:var(--text);word-break:break-word}
+.allergy-alert{background:var(--rose-lt);border:1px solid #fecdd3;border-radius:8px;padding:10px 13px;font-size:12px;color:var(--rose);display:flex;align-items:flex-start;gap:8px;margin-top:6px}
+.allergy-alert i{flex-shrink:0;margin-top:1px}
+.prof-actions{display:flex;gap:8px;padding:14px 20px;border-top:1px solid var(--border);flex-wrap:wrap;position:sticky;bottom:0;background:var(--card)}
+
+/* ── VACCINE ROWS in profile tab ── */
+.vax-row-item{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg2);border-radius:10px;margin-bottom:8px;border:1px solid var(--border);transition:box-shadow .12s}
+.vax-row-item:hover{box-shadow:var(--shadow)}
+.vax-row-item.overdue{background:var(--rose-lt);border-color:#fecdd3}
+.vri-dot{width:9px;height:9px;border-radius:50%;background:var(--mint);flex-shrink:0}
+.vri-dot.overdue{background:var(--rose)}
+.vri-dot.pending{background:var(--amber)}
+.vri-info{flex:1;min-width:0}
+.vri-name{font-size:12.5px;font-weight:600;color:var(--text)}
+.vri-dose{font-size:11px;color:var(--text3);margin-top:1px}
+.vri-date{font-size:11px;color:var(--text3)}
+.vri-facility{font-size:10.5px;color:var(--text3)}
+.vri-actions{display:flex;gap:2px;flex-shrink:0}
+
+/* form steps */
+.steps-bar{display:flex;align-items:center;padding:13px 20px;border-bottom:1px solid var(--border);background:var(--bg2)}
+.step{display:flex;align-items:center;gap:7px;opacity:.4;transition:opacity .2s;cursor:pointer}
+.step.on,.step.done{opacity:1}
+.step-num{width:24px;height:24px;border-radius:50%;background:var(--border2);display:flex;align-items:center;justify-content:center;font-size:10.5px;font-weight:700;color:var(--text3);transition:all .2s;flex-shrink:0}
+.step.on .step-num{background:var(--mint);color:#fff}
+.step.done .step-num{background:var(--green);color:#fff}
+.step-lbl{font-size:11.5px;font-weight:500;color:var(--text2);white-space:nowrap}
+.step.on .step-lbl{color:var(--mint-dk);font-weight:600}
+.step-line{flex:1;height:2px;background:var(--border);margin:0 6px;min-width:10px;transition:background .3s}
+.step-line.done{background:var(--green)}
+.step-body{display:none;padding:18px
+20px}
+.step-body.on{display:block;animation:fadeUp .16s}
+.sec-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px}
+.sec-label i{color:var(--mint)}
+.step-nav{display:flex;align-items:center;justify-content:space-between;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+
+/* ══════════════════════════════
+   ADD VACCINE MODAL
+══════════════════════════════ */
+.modal-backdrop{position:fixed;inset:0;background:rgba(11,31,58,.55);display:flex;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-backdrop.open{opacity:1;pointer-events:all}
+.modal-box{background:var(--card);border-radius:16px;width:560px;max-width:95vw;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow2);transform:translateY(20px);transition:transform .2s;display:flex;flex-direction:column}
+.modal-backdrop.open .modal-box{transform:translateY(0)}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--card);z-index:2}
+.modal-head-left{display:flex;align-items:center;gap:12px}
+.modal-head-icon{width:38px;height:38px;border-radius:10px;background:var(--purple-lt);display:flex;align-items:center;justify-content:center;color:var(--purple);font-size:16px;flex-shrink:0}
+.modal-title{font-size:16px;font-weight:700}
+.modal-subtitle{font-size:12px;color:var(--text3);margin-top:2px}
+.modal-close{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:14px;transition:all .12s}
+.modal-close:hover{background:var(--rose-lt);color:var(--rose);border-color:#fecdd3}
+.modal-body{padding:24px;flex:1}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--bg2);position:sticky;bottom:0}
+.modal-footer-left{font-size:12px;color:var(--text3)}
+
+/* vaccine status selector */
+.vax-status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}
+.vstatus-opt{padding:10px 8px;border-radius:9px;border:1.5px solid var(--border);cursor:pointer;text-align:center;transition:all .14s;font-size:12px;font-weight:500;color:var(--text2)}
+.vstatus-opt:hover{border-color:var(--mint-mid)}
+.vstatus-opt.on{border-color:var(--mint);background:var(--mint-lt);color:var(--mint-dk)}
+.vstatus-opt.rose.on{border-color:var(--rose);background:var(--rose-lt);color:var(--rose)}
+.vstatus-opt.amber.on{border-color:var(--amber);background:var(--amber-lt);color:#92400e}
+.vstatus-opt i{display:block;font-size:16px;margin-bottom:4px}
+
+/* divider */
+.divider{height:1px;background:var(--border);margin:16px 0}
+
+/* ══════════════════════════════
+   CERTIFICATES PAGE
+══════════════════════════════ */
+.cert-page-layout{display:grid;grid-template-columns:320px 1fr;gap:20px;align-items:start}
+.cert-left-panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;position:sticky;top:calc(var(--topbar)+14px);max-height:calc(100vh - var(--topbar) - 30px);display:flex;flex-direction:column}
+.clp-head{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.clp-search{padding:10px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
+.clp-scroll{overflow-y:auto;flex:1}
+.cpr{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .13s}
+.cpr:last-child{border-bottom:none}
+.cpr:hover{background:var(--bg2)}
+.cpr.on{background:var(--mint-lt);border-left:3px solid
+var(--mint)}
+.cpr-av{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
+.cpr-name{font-size:13px;font-weight:600}
+.cpr-id{font-size:10px;color:var(--text3);font-family:monospace}
+.cpr-right{margin-left:auto;text-align:right}
+.cpr-vcount{font-size:10.5px;color:var(--mint-dk);font-weight:600}
+
+/* cert preview */
+.cert-right-area{display:flex;flex-direction:column;gap:14px}
+.cert-toolbar{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:13px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.cert-tb-left{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+.cert-tb-left i{color:var(--mint)}
+.cert-tb-right{display:flex;gap:8px;flex-wrap:wrap}
+
+/* THE CERTIFICATE */
+.cert-doc{background:var(--card);border-radius:16px;border:2px solid var(--mint);padding:36px;box-shadow:var(--shadow2);position:relative;overflow:hidden}
+.cert-doc::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:var(--mint-lt);border-radius:50%;z-index:0}
+.cert-doc::after{content:'';position:absolute;bottom:-50px;left:-50px;width:160px;height:160px;background:#eef5ff;border-radius:50%;z-index:0}
+.cert-doc-inner{position:relative;z-index:1}
+.cert-watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:0;pointer-events:none;opacity:.035;font-size:90px;color:var(--navy);font-weight:900;letter-spacing:-4px;transform:rotate(-25deg);white-space:nowrap}
+.cert-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:26px}
+.cert-brand-row{display:flex;align-items:center;gap:12px}
+.cert-brand-ico{width:46px;height:46px;background:var(--mint);border-radius:12px;display:flex;align-items:center;justify-content:center}
+.cert-brand-ico i{color:#fff;font-size:20px}
+.cert-brand-name{font-size:17px;font-weight:700;color:var(--navy)}
+.cert-brand-org{font-size:11px;color:var(--text3);margin-top:2px}
+.cert-qr{width:74px;height:74px;background:var(--navy);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:32px;color:#fff}
+.cert-title{font-family:var(--serif);font-size:28px;font-style:italic;color:var(--navy);margin-bottom:5px}
+.cert-sub{font-size:12px;color:var(--text3);margin-bottom:22px;line-height:1.6;max-width:500px}
+.cert-person{display:flex;align-items:center;gap:16px;background:var(--bg);border-radius:var(--r);padding:16px 18px;margin-bottom:22px}
+.cert-pers-av{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;color:#fff;flex-shrink:0}
+.cert-pers-name{font-size:20px;font-weight:700;color:var(--text)}
+.cert-pers-meta{font-size:12px;color:var(--text2);margin-top:3px}
+.cert-pers-id{font-size:11px;color:var(--text3);font-family:monospace;margin-top:2px}
+.cert-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-bottom:22px;background:var(--bg2);border-radius:var(--r);overflow:hidden;border:1px solid var(--border)}
+.cstat{text-align:center;padding:14px 12px;border-right:1px solid var(--border)}
+.cstat:last-child{border-right:none}
+.cstat-num{font-size:24px;font-weight:700;color:var(--mint-dk);line-height:1}
+.cstat-lbl{font-size:10.5px;color:var(--text3);margin-top:3px}
+.cert-vax-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text3);margin-bottom:12px;display:flex;align-items:center;gap:7px}
+.cert-vax-section-title i{color:var(--mint)}
+.cert-vax-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:22px}
+.cert-vax-card{background:var(--bg2);border-radius:10px;padding:12px 14px;border-left:3px solid
+var(--mint)}
+.cert-vax-card.overdue{border-left-color:var(--rose);background:var(--rose-lt)}
+.cvc-name{font-size:12.5px;font-weight:600;color:var(--text)}
+.cvc-dose{font-size:10.5px;color:var(--mint-dk);font-weight:700;margin-top:2px}
+.cvc-dose.overdue{color:var(--rose)}
+.cvc-meta{font-size:11px;color:var(--text3);margin-top:3px;display:flex;flex-direction:column;gap:1px}
+.cert-allergy{background:var(--rose-lt);border:1px solid #fecdd3;border-radius:10px;padding:12px 16px;font-size:12px;color:var(--rose);margin-bottom:20px;display:flex;gap:8px;align-items:center}
+.cert-footer{display:flex;align-items:flex-end;justify-content:space-between;border-top:1px solid var(--border);padding-top:18px;gap:20px}
+.cert-footer-info{font-size:11px;color:var(--text3);line-height:1.7}
+.cert-footer-info strong{color:var(--text2)}
+.cert-stamp{padding:9px 18px;border-radius:20px;font-size:11.5px;font-weight:700;letter-spacing:.5px;flex-shrink:0}
+.cert-stamp.verified{background:var(--mint-lt);border:1px solid var(--mint-mid);color:var(--mint-dk)}
+.cert-stamp.incomplete{background:var(--amber-lt);border:1px solid var(--amber);color:#92400e}
+.cert-placeholder{text-align:center;padding:72px 24px}
+.cert-placeholder i{font-size:60px;color:var(--border2);margin-bottom:18px;display:block}
+.cert-placeholder h3{font-size:17px;font-weight:600;color:var(--text2);margin-bottom:6px}
+.cert-placeholder p{font-size:13px;color:var(--text3)}
+
+/* toast */
+.toast-pop{position:fixed;bottom:22px;right:22px;background:var(--navy);color:#fff;padding:11px 18px;border-radius:10px;font-size:13px;font-weight:500;display:flex;align-items:center;gap:9px;z-index:999;box-shadow:var(--shadow2);animation:fadeUp .2s}
+.toast-pop i{color:var(--mint)}
+.toast-pop.err-toast{background:var(--rose)}
+.toast-pop.err-toast i{color:#fff}
+
+/* empty */
+.empty{text-align:center;padding:44px 20px;color:var(--text3)}
+.empty i{font-size:38px;margin-bottom:12px;display:block;opacity:.3}
+.empty p{font-size:13.5px;font-weight:500}
+.empty small{font-size:12px;opacity:.7;display:block;margin-top:3px}
+
+/* scrollbar */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:10px}
+
+/* print */
+@media print{
+  .sidebar,.topbar,.pat-toolbar,.cert-toolbar,.cert-left-panel,.prof-actions,.panel-head,.cert-tb-right,#modal-vax{display:none!important}
+  .main{margin-left:0!important}
+  .cert-page-layout{grid-template-columns:1fr!important}
+  .cert-doc{box-shadow:none;border:1.5px solid var(--mint);page-break-inside:avoid}
+  body{background:#fff}
+}
+
+@media(max-width:1100px){.pat-workspace.has-panel{grid-template-columns:1fr 400px}.cert-page-layout{grid-template-columns:280px 1fr}}
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%)}.sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .stat-strip{grid-template-columns:1fr 1fr}
+  .pat-workspace.has-panel{grid-template-columns:1fr}
+  .pat-panel{position:fixed;top:0;right:0;bottom:0;width:100%;max-width:440px;border-radius:0;z-index:60;max-height:100vh}
+  .cert-page-layout{grid-template-columns:1fr}
+  .cert-left-panel{position:static;max-height:300px}
+}
+@media(max-width:580px){.stat-strip{grid-template-columns:1fr}.fg2,.fg3{grid-template-columns:1fr}.pat-cards{grid-template-columns:1fr}.cert-vax-grid{grid-template-columns:1fr}.cert-stats-row{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="logo">
+    <div class="logo-row">
+      <div class="logo-mark"><i class="fas fa-syringe"></i></div>
+      <div class="logo-text">VaxTrack</div>
+    </div>
+    <div class="logo-sub">Immunisation Management System</div>
+  </div>
+  <nav class="nav">
+    <span class="nav-sec">Main</span>
+    <button class="nb" onclick="goPage('patients')"><i class="fas fa-users"></i>Patients</button>
+    <button class="nb" onclick="goPage('certificates')"><i class="fas fa-certificate"></i>Certificates</button>
+    <button class="nb" onclick="goPage('records')"><i class="fas
+fa-file-medical"></i>Vaccine Records</button>
+    <button class="nb" onclick="goPage('schedule')"><i class="fas fa-calendar-check"></i>Scheduler</button>
+    <span class="nav-sec">System</span>
+    <button class="nb" onclick="goPage('notifications')"><i class="fas fa-bell"></i>Notifications<span class="nbadge">3</span></button>
+    <button class="nb" onclick="goPage('admin')"><i class="fas fa-shield-alt"></i>Admin Panel</button>
+  </nav>
+  <div class="user-box">
+    <div class="user-row">
+      <div class="u-av">AD</div>
+      <div><div class="u-name">Admin</div><div class="u-meta">VaxTrack System</div></div>
+    </div>
+    <div class="u-pill"><div class="u-dot"></div>System Active</div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main">
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="icon-btn" id="menu-btn" onclick="document.getElementById('sidebar').classList.toggle('open')" style="display:none"><i class="fas fa-bars"></i></button>
+      <h1 class="page-title" id="page-title">Patients</h1>
+    </div>
+    <div class="topbar-right">
+      <button class="icon-btn" onclick="goPage('notifications')"><i class="fas fa-bell"></i><div class="notif-pip"></div></button>
+      <button class="btn btn-ghost btn-sm" onclick="goPage('certificates')"><i class="fas fa-certificate"></i>Certificates</button>
+      <button class="btn btn-mint btn-sm" onclick="openPatientForm(null)"><i class="fas fa-user-plus"></i>Add Patient</button>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ══ PATIENTS ══ -->
+    <section class="page on" id="page-patients">
+      <div class="pat-toolbar">
+        <div class="search-wrap" style="width:220px">
+          <i class="fas fa-search"></i>
+          <input type="text" placeholder="Search name, ID, phone…" oninput="filterPat(this.value)">
+        </div>
+        <select class="inp" style="width:140px;margin:0" onchange="filterStatus(this.value)">
+          <option value="">All Statuses</option>
+          <option value="Active">Active</option>
+          <option value="Overdue">Overdue</option>
+          <option value="Follow-up">Follow-up</option>
+          <option value="Inactive">Inactive</option>
+        </select>
+        <div class="vtoggle">
+          <button class="vbtn on" id="vb-card" onclick="setView('card')" title="Cards"><i class="fas fa-th-large"></i></button>
+          <button class="vbtn" id="vb-table" onclick="setView('table')" title="Table"><i class="fas fa-list"></i></button>
+        </div>
+        <div style="flex:1"></div>
+        <button class="btn btn-mint" onclick="openPatientForm(null)"><i class="fas fa-user-plus"></i>Add Patient</button>
+      </div>
+
+      <div class="stat-strip" id="pat-stats"></div>
+
+      <div class="pat-workspace" id="pat-workspace">
+        <div id="pat-list-col">
+          <div id="cards-view"><div class="pat-cards" id="pat-cards"></div></div>
+          <div id="table-view" style="display:none">
+            <div class="card"><div class="card-body np">
+              <table><thead><tr><th>Patient</th><th>Age/Sex</th><th>Blood</th><th>Phone</th><th>Vaccines</th><th>Status</th><th></th></tr></thead>
+              <tbody id="pat-tbody"></tbody></table>
+            </div></div>
+          </div>
+        </div>
+
+        <!-- RIGHT PANEL (profile / patient form) -->
+        <div class="pat-panel" id="pat-panel" style="display:none">
+
+          <!-- PROFILE VIEW -->
+          <div id="panel-profile" style="display:none">
+            <div class="panel-head">
+              <div class="panel-title"><i class="fas fa-user-circle"></i><span id="pp-title">Profile</span></div>
+              <button class="panel-x" onclick="closePanel()"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="pp-body"></div>
+            <div class="prof-actions" id="pp-actions"></div>
+          </div>
+
+          <!-- PATIENT FORM -->
+          <div id="panel-form" style="display:none">
+            <div class="panel-head">
+              <div class="panel-title"><i class="fas fa-user-edit"></i><span id="pf-title">New Patient</span></div>
+<button class="panel-x" onclick="closePanel()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="steps-bar">
+              <div class="step on" id="st1" onclick="goStep(1)"><div class="step-num">1</div><div class="step-lbl">Personal</div></div>
+              <div class="step-line" id="sl1"></div>
+              <div class="step" id="st2" onclick="goStep(2)"><div class="step-num">2</div><div class="step-lbl">Contact</div></div>
+              <div class="step-line" id="sl2"></div>
+              <div class="step" id="st3" onclick="goStep(3)"><div class="step-num">3</div><div class="step-lbl">Medical</div></div>
+            </div>
+            <div class="step-body on" id="sb1">
+              <div class="sec-label"><i class="fas fa-id-card"></i>Personal Information</div>
+              <div class="fg2">
+                <div class="form-row"><label class="lbl">First Name <span class="req">*</span></label><input class="inp" id="f-fname" placeholder="First name" oninput="autosave()"></div>
+                <div class="form-row"><label class="lbl">Last Name <span class="req">*</span></label><input class="inp" id="f-lname" placeholder="Last name" oninput="autosave()"></div>
+              </div>
+              <div class="fg2">
+                <div class="form-row"><label class="lbl">Date of Birth <span class="req">*</span></label><input class="inp" type="date" id="f-dob" oninput="autosave()"></div>
+                <div class="form-row"><label class="lbl">Gender</label><select class="sel" id="f-gender" onchange="autosave()"><option>Male</option><option>Female</option><option>Other</option></select></div>
+              </div>
+              <div class="fg2">
+                <div class="form-row"><label class="lbl">Blood Group</label><select class="sel" id="f-blood" onchange="autosave()"><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select></div>
+                <div class="form-row"><label class="lbl">Status</label><select class="sel" id="f-status" onchange="autosave()"><option>Active</option><option>Follow-up</option><option>Overdue</option><option>Inactive</option></select></div>
+              </div>
+              <div class="form-row"><label class="lbl">Assigned Physician</label><div class="icon-inp"><i class="fas fa-user-md"></i><input class="inp" id="f-doctor" placeholder="Dr. Name" oninput="autosave()"></div></div>
+              <div class="step-nav"><span></span><button class="btn btn-mint" onclick="goStep(2)">Next <i class="fas fa-arrow-right"></i></button></div>
+            </div>
+            <div class="step-body" id="sb2">
+              <div class="sec-label"><i class="fas fa-address-card"></i>Contact Details</div>
+              <div class="form-row"><label class="lbl">Phone</label><div class="icon-inp"><i class="fas fa-phone"></i><input class="inp" id="f-phone" placeholder="+91 99999 00000" oninput="autosave()"></div></div>
+              <div class="form-row"><label class="lbl">Email</label><div class="icon-inp"><i class="fas fa-envelope"></i><input class="inp" type="email" id="f-email" placeholder="patient@email.com" oninput="autosave()"></div></div>
+              <div class="form-row"><label class="lbl">Address</label><textarea class="inp" id="f-address" placeholder="Street, City, State, PIN" rows="2" oninput="autosave()"></textarea></div>
+              <div class="form-row"><label class="lbl">Emergency Contact</label><div class="icon-inp"><i class="fas fa-user-shield"></i><input class="inp" id="f-emergency" placeholder="Name — Phone" oninput="autosave()"></div></div>
+              <div class="step-nav">
+                <button class="btn btn-ghost" onclick="goStep(1)"><i class="fas fa-arrow-left"></i> Back</button>
+                <button class="btn btn-mint" onclick="goStep(3)">Next <i class="fas fa-arrow-right"></i></button>
+              </div>
+            </div>
+            <div class="step-body" id="sb3">
+              <div class="sec-label"><i class="fas
+fa-heartbeat"></i>Medical Information</div>
+              <div class="form-row"><label class="lbl">Known Allergies</label><input class="inp" id="f-allergies" placeholder="e.g. Penicillin — or — None" oninput="autosave()"></div>
+              <div class="form-row"><label class="lbl">Medical Conditions</label><input class="inp" id="f-conditions" placeholder="e.g. Diabetes — or — None" oninput="autosave()"></div>
+              <div class="form-row"><label class="lbl">Previous Vaccines (notes)</label><textarea class="inp" id="f-prevvax" placeholder="e.g. BCG at birth, OPV 3 doses…" rows="2" oninput="autosave()"></textarea></div>
+              <div class="form-row"><label class="lbl">Clinical Notes</label><textarea class="inp" id="f-notes" placeholder="Notes for healthcare staff…" rows="2" oninput="autosave()"></textarea></div>
+              <div id="f-autosave-note" style="font-size:11px;color:var(--text3);margin-top:4px;display:none"><i class="fas fa-check-circle" style="color:var(--green)"></i> Draft auto-saved</div>
+              <div class="step-nav">
+                <button class="btn btn-ghost" onclick="goStep(2)"><i class="fas fa-arrow-left"></i> Back</button>
+                <button class="btn btn-mint" onclick="savePatient()"><i class="fas fa-save"></i> Save Patient</button>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /pat-panel -->
+      </div>
+    </section>
+
+    <!-- ══ CERTIFICATES ══ -->
+    <section class="page" id="page-certificates">
+      <div class="cert-page-layout">
+        <div class="cert-left-panel">
+          <div class="clp-head">
+            <span style="font-size:13px;font-weight:600"><i class="fas fa-users" style="color:var(--mint);margin-right:6px"></i>Patients</span>
+            <span class="tag tg-mint" id="cert-count">0</span>
+          </div>
+          <div class="clp-search"><div class="search-wrap"><i class="fas fa-search"></i><input type="text" placeholder="Search…" oninput="filterCertList(this.value)"></div></div>
+          <div class="clp-scroll" id="cert-pat-list"></div>
+        </div>
+        <div class="cert-right-area">
+          <div class="cert-toolbar" id="cert-toolbar" style="display:none">
+            <div class="cert-tb-left"><i class="fas fa-certificate"></i><span id="cert-bar-name">Certificate</span></div>
+            <div class="cert-tb-right">
+              <button class="btn btn-ghost btn-sm" onclick="window.print()"><i class="fas fa-print"></i>Print</button>
+              <button class="btn btn-ghost btn-sm" onclick="toast('Link copied to clipboard')"><i class="fas fa-share-alt"></i>Share</button>
+              <button class="btn btn-ghost btn-sm" onclick="toast('QR Code generated')"><i class="fas fa-qrcode"></i>QR Code</button>
+              <button class="btn btn-mint btn-sm" onclick="toast('Certificate PDF downloading…')"><i class="fas fa-download"></i>Download PDF</button>
+            </div>
+          </div>
+          <div id="cert-display">
+            <div class="cert-placeholder">
+              <i class="fas fa-certificate"></i>
+              <h3>Select a Patient</h3>
+              <p>Choose a patient from the list to view and download their vaccination certificate</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="page" id="page-records"><div class="empty"><i class="fas fa-file-medical"></i><p>Vaccine Records</p></div></section>
+    <section class="page" id="page-schedule"><div class="empty"><i class="fas fa-calendar-check"></i><p>Scheduler</p></div></section>
+    <section class="page" id="page-notifications"><div class="empty"><i class="fas fa-bell"></i><p>Notifications</p></div></section>
+    <section class="page" id="page-admin"><div class="empty"><i class="fas fa-shield-alt"></i><p>Admin Panel</p></div></section>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ══ ADD VACCINE MODAL ══ -->
+<div class="modal-backdrop" id="modal-vax" onclick="handleBackdropClick(event)">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div
+class="modal-head-left">
+        <div class="modal-head-icon"><i class="fas fa-syringe"></i></div>
+        <div>
+          <div class="modal-title">Add Vaccine</div>
+          <div class="modal-subtitle" id="vax-modal-patient-name">Patient name</div>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeVaxModal()"><i class="fas fa-times"></i></button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Vaccine name + category -->
+      <div class="fg2">
+        <div class="form-row" style="grid-column:1/-1">
+          <label class="lbl">Vaccine Name <span class="req">*</span></label>
+          <div class="icon-inp"><i class="fas fa-vial"></i><input class="inp" id="v-name" placeholder="e.g. COVID-19 (Covishield), MMR, Hepatitis B…"></div>
+        </div>
+      </div>
+      <div class="fg2">
+        <div class="form-row">
+          <label class="lbl">Dose / Description <span class="req">*</span></label>
+          <select class="sel" id="v-dose">
+            <option value="">— Select dose —</option>
+            <option>1st Dose</option><option>2nd Dose</option><option>3rd Dose</option>
+            <option>4th Dose</option><option>Booster</option><option>Annual</option>
+            <option>Complete Series</option><option>At Birth</option><option>Single Dose</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label class="lbl">Lot Number</label>
+          <input class="inp" id="v-lot" placeholder="e.g. AB1234 (optional)">
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Date + Facility + Doctor -->
+      <div class="fg3">
+        <div class="form-row">
+          <label class="lbl">Date Administered <span class="req">*</span></label>
+          <input class="inp" type="date" id="v-date">
+        </div>
+        <div class="form-row">
+          <label class="lbl">Next Due Date</label>
+          <input class="inp" type="date" id="v-next">
+        </div>
+        <div class="form-row">
+          <label class="lbl">Category</label>
+          <select class="sel" id="v-category">
+            <option>Routine</option><option>COVID-19</option><option>Travel</option>
+            <option>Annual</option><option>Occupational</option><option>Paediatric</option><option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg2">
+        <div class="form-row">
+          <label class="lbl">Healthcare Facility <span class="req">*</span></label>
+          <div class="icon-inp"><i class="fas fa-hospital"></i><input class="inp" id="v-facility" placeholder="Hospital / Clinic name"></div>
+        </div>
+        <div class="form-row">
+          <label class="lbl">Administering Doctor</label>
+          <div class="icon-inp"><i class="fas fa-user-md"></i><input class="inp" id="v-doctor" placeholder="Dr. Name"></div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Vaccine status -->
+      <div class="form-row">
+        <label class="lbl">Vaccine Status</label>
+        <div class="vax-status-grid">
+          <div class="vstatus-opt on" id="vs-done" onclick="selectVaxStatus('done')"><i class="fas fa-check-circle" style="color:var(--green)"></i>Completed</div>
+          <div class="vstatus-opt amber" id="vs-pending" onclick="selectVaxStatus('pending')"><i class="fas fa-clock" style="color:var(--amber)"></i>Scheduled</div>
+          <div class="vstatus-opt rose" id="vs-overdue" onclick="selectVaxStatus('overdue')"><i class="fas fa-exclamation-circle" style="color:var(--rose)"></i>Overdue</div>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="form-row">
+        <label class="lbl">Notes / Side Effects</label>
+        <textarea class="inp" id="v-notes" placeholder="Any side effects, observations or additional notes…" rows="2"></textarea>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <div class="modal-footer-left" id="vax-modal-footer-info"></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost" onclick="closeVaxModal()">Cancel</button>
+        <button class="btn
+btn-purple" onclick="saveVaccine()"><i class="fas fa-save"></i>Save Vaccine</button>
+        <button class="btn btn-mint" onclick="saveVaccineAndCert()"><i class="fas fa-certificate"></i>Save & View Certificate</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════
+const TITLES={patients:'Patients',certificates:'Certificates',records:'Vaccine Records',schedule:'Scheduler',notifications:'Notifications',admin:'Admin Panel'};
+function goPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('page-'+id).classList.add('on');
+  document.querySelectorAll('.nb').forEach(b=>{if(b.getAttribute('onclick')?.includes("'"+id+"'"))b.classList.add('on');});
+  document.getElementById('page-title').textContent=TITLES[id]||id;
+  if(id==='patients')renderAll();
+  if(id==='certificates'){renderCertList();if(activeCertId)showCertFor(activeCertId);}
+}
+
+// ════════════════════════════════════════
+//  DATA  (localStorage-persisted)
+// ════════════════════════════════════════
+const COLORS=['#00967d','#7c3aed','#0284c7','#b45309','#be185d','#0f766e','#6d28d9','#b91c1c','#047857','#1d4ed8','#0369a1','#7e22ce'];
+
+const DEFAULT_PATIENTS=[
+  {id:'PT-001',fname:'Arjun',  lname:'Reddy',  dob:'1997-03-14',gender:'Male',  blood:'B+', status:'Active',   phone:'+91 98765 43210',email:'arjun.reddy@email.com',  address:'12 MG Road, Hyderabad, TG 500001',     emergency:'Suresh Reddy – +91 98700 11223',allergies:'None',       conditions:'None',                 prevvax:'',doctor:'Dr. Venkat',notes:'',color:'#00967d'},
+  {id:'PT-002',fname:'Priya',  lname:'Nair',   dob:'1990-07-22',gender:'Female',blood:'O+', status:'Active',   phone:'+91 91234 56789',email:'priya.nair@email.com',   address:'45 Anna Salai, Chennai, TN 600002',    emergency:'Ravi Nair – +91 91200 33445',  allergies:'Penicillin', conditions:'Mild Asthma',          prevvax:'',doctor:'Dr. Priya',notes:'Requires inhaler on premises.',color:'#7c3aed'},
+  {id:'PT-003',fname:'Rohan',  lname:'Shetty', dob:'2012-11-08',gender:'Male',  blood:'A+', status:'Active',   phone:'+91 98001 22334',email:'rohan.parent@email.com', address:'7 Koramangala, Bangalore, KA 560034',  emergency:'Mahesh Shetty – +91 98001 55678',allergies:'None',    conditions:'None',                 prevvax:'',doctor:'Dr. Singh',notes:'Paediatric patient.',color:'#0284c7'},
+  {id:'PT-004',fname:'Meena',  lname:'Pillai', dob:'1957-04-30',gender:'Female',blood:'AB+',status:'Follow-up',phone:'+91 94455 66778',email:'meena.pillai@email.com', address:'22 Trivandrum Rd, Kochi, KL 682001',   emergency:'Vijay Pillai – +91 94455 99001',allergies:'Sulfa drugs',conditions:'Hypertension, Diabetes',prevvax:'',doctor:'Dr. Mehta',notes:'Monitor BP before injections.',color:'#b45309'},
+  {id:'PT-005',fname:'Amit',   lname:'Joshi',  dob:'1979-09-15',gender:'Male',  blood:'O-', status:'Overdue',  phone:'+91 99887 76655',email:'amit.joshi@email.com',   address:'88 Civil Lines, Jaipur, RJ 302001',    emergency:'Kavita Joshi – +91 99887 44332',allergies:'Aspirin',   conditions:'Mild Hypertension',    prevvax:'',doctor:'Dr. Kumar',notes:'MMR booster overdue.',color:'#be185d'},
+  {id:'PT-006',fname:'Sunita', lname:'Das',    dob:'1997-12-03',gender:'Female',blood:'B-', status:'Active',   phone:'+91 70123 45678',email:'sunita.das@email.com',   address:'30 Salt Lake, Kolkata, WB 700091',     emergency:'Pradip Das – +91 70123 99001',  allergies:'None',      conditions:'None',                 prevvax:'',doctor:'Dr. Rajesh',notes:'',color:'#0f766e'},
+  {id:'PT-007',fname:'Vikram', lname:'Singh',  dob:'1985-06-18',gender:'Male',  blood:'A-', status:'Active',   phone:'+91 88990 01122',email:'vikram.singh@email.com', address:'55 Rajpur Rd, Dehradun, UK 248001',    emergency:'Anita Singh – +91 88990 33456', allergies:'None',      conditions:'None',                 prevvax:'',doctor:'Dr. Sharma',notes:'',color:'#6d28d9'},
+{id:'PT-008',fname:'Kavya',  lname:'Menon',  dob:'2001-02-25',gender:'Female',blood:'A+', status:'Active',   phone:'+91 96543 21098',email:'kavya.menon@email.com',  address:'14 Viman Nagar, Pune, MH 411014',      emergency:'Mohan Menon – +91 96543 77788', allergies:'Latex',     conditions:'None',                 prevvax:'',doctor:'Dr. Priya',notes:'Latex-free gloves required.',color:'#b91c1c'},
+  {id:'PT-009',fname:'Deepak', lname:'Verma',  dob:'1972-08-11',gender:'Male',  blood:'AB-',status:'Follow-up',phone:'+91 77665 54433',email:'deepak.verma@email.com', address:'9 Vasant Kunj, New Delhi, DL 110070',  emergency:'Suman Verma – +91 77665 22110', allergies:'Ibuprofen', conditions:'Type 2 Diabetes',      prevvax:'',doctor:'Dr. Kumar',notes:'Check sugar before vaccination.',color:'#047857'},
+  {id:'PT-010',fname:'Anjali', lname:'Sharma', dob:'1994-05-07',gender:'Female',blood:'O+', status:'Active',   phone:'+91 85432 10987',email:'anjali.sharma@email.com',address:'21 Sector 18, Noida, UP 201301',        emergency:'Raj Sharma – +91 85432 66789',  allergies:'None',      conditions:'None',                 prevvax:'',doctor:'Dr. Venkat',notes:'',color:'#1d4ed8'},
+];
+
+// default vaccine records seeded per patient
+const DEFAULT_VAX={
+  'PT-001':[{id:'v1',name:'COVID-19 (Covishield)',dose:'4th Dose',date:'15 Jan 2025',facility:'Apollo Hospital',doctor:'Dr. Venkat',lot:'COV-A4',category:'COVID-19',status:'done',notes:'No side effects'},{id:'v2',name:'Hepatitis B',dose:'2nd Dose',date:'20 Feb 2025',facility:'City Medical',doctor:'Dr. Mehta',lot:'HBV-889',category:'Routine',status:'done',notes:''},{id:'v3',name:'Typhoid Booster',dose:'Booster',date:'12 Sep 2024',facility:'AIIMS',doctor:'Dr. Kumar',lot:'TYP-22',category:'Travel',status:'done',notes:''},{id:'v4',name:'Influenza',dose:'Annual',date:'10 Mar 2024',facility:'Health Centre',doctor:'Dr. Priya',lot:'FLU-24',category:'Annual',status:'done',notes:''},{id:'v5',name:'MMR Booster',dose:'Booster',date:'08 May 2025',facility:'AIIMS',doctor:'Dr. Kumar',lot:'',category:'Routine',status:'overdue',notes:'Missed appointment'}],
+  'PT-002':[{id:'v1',name:'Influenza',dose:'Annual',date:'15 Apr 2025',facility:'Health Centre',doctor:'Dr. Priya',lot:'',category:'Annual',status:'done',notes:''},{id:'v2',name:'Typhoid',dose:'Booster',date:'12 Sep 2024',facility:'Apollo',doctor:'Dr. Priya',lot:'',category:'Travel',status:'done',notes:''},{id:'v3',name:'COVID-19',dose:'3 doses',date:'10 Aug 2021',facility:'Govt Hospital',doctor:'—',lot:'',category:'COVID-19',status:'done',notes:''}],
+  'PT-003':[{id:'v1',name:'MMR',dose:'1st Dose',date:'12 Mar 2025',facility:'AIIMS',doctor:'Dr. Singh',lot:'',category:'Paediatric',status:'done',notes:''},{id:'v2',name:'DTP Booster',dose:'Booster',date:'20 Jan 2025',facility:'Health Centre',doctor:'Dr. Singh',lot:'',category:'Paediatric',status:'done',notes:''},{id:'v3',name:'BCG',dose:'At Birth',date:'08 Nov 2012',facility:'City Hospital',doctor:'—',lot:'',category:'Paediatric',status:'done',notes:''}],
+  'PT-004':[{id:'v1',name:'Influenza',dose:'Annual',date:'10 Jan 2025',facility:'Apollo',doctor:'Dr. Mehta',lot:'',category:'Annual',status:'done',notes:''},{id:'v2',name:'Pneumococcal (PCV)',dose:'1st Dose',date:'05 Aug 2024',facility:'City Medical',doctor:'Dr. Mehta',lot:'',category:'Routine',status:'done',notes:''},{id:'v3',name:'COVID-19',dose:'3 doses',date:'20 Jun 2021',facility:'Govt Hospital',doctor:'—',lot:'',category:'COVID-19',status:'done',notes:''}],
+  'PT-005':[{id:'v1',name:'COVID-19',dose:'2 doses',date:'15 Jun 2021',facility:'Govt Hospital',doctor:'—',lot:'',category:'COVID-19',status:'done',notes:''},{id:'v2',name:'MMR Booster',dose:'Booster',date:'08 May 2025',facility:'—',doctor:'—',lot:'',category:'Routine',status:'overdue',notes:'Missed — needs rescheduling'}],
+  'PT-006':[{id:'v1',name:'COVID-19 Booster',dose:'4th Dose',date:'14 Dec 2024',facility:'Apollo',doctor:'Dr. Rajesh',lot:'',category:'COVID-19',status:'done',notes:''},{id:'v2',name:'Varicella',dose:'2 doses',date:'10 Jun 2023',facility:'City Clinic',doctor:'Dr.
+Rajesh',lot:'',category:'Routine',status:'done',notes:''},{id:'v3',name:'Hepatitis A',dose:'2 doses',date:'22 Mar 2022',facility:'AIIMS',doctor:'Dr. Rajesh',lot:'',category:'Travel',status:'done',notes:''}],
+  'PT-007':[{id:'v1',name:'Hepatitis A',dose:'Complete',date:'20 Apr 2024',facility:'Apollo',doctor:'Dr. Sharma',lot:'',category:'Travel',status:'done',notes:''},{id:'v2',name:'Typhoid',dose:'Booster',date:'05 May 2025',facility:'City Medical',doctor:'Dr. Sharma',lot:'',category:'Travel',status:'done',notes:''},{id:'v3',name:'COVID-19',dose:'4 doses',date:'10 Jan 2022',facility:'Govt Hospital',doctor:'—',lot:'',category:'COVID-19',status:'done',notes:''}],
+  'PT-008':[{id:'v1',name:'HPV Vaccine',dose:'Complete Series',date:'18 Feb 2024',facility:'City Medical',doctor:'Dr. Priya',lot:'',category:'Routine',status:'done',notes:''},{id:'v2',name:'MMR Booster',dose:'Booster',date:'08 Apr 2025',facility:'Apollo',doctor:'Dr. Priya',lot:'',category:'Routine',status:'done',notes:''},{id:'v3',name:'COVID-19',dose:'3 doses',date:'22 Jul 2021',facility:'Govt Hospital',doctor:'—',lot:'',category:'COVID-19',status:'done',notes:''}],
+  'PT-009':[{id:'v1',name:'Influenza',dose:'Annual',date:'10 Oct 2024',facility:'Health Centre',doctor:'Dr. Kumar',lot:'',category:'Annual',status:'done',notes:''},{id:'v2',name:'Typhoid',dose:'Booster',date:'14 Mar 2024',facility:'City Medical',doctor:'Dr. Kumar',lot:'',category:'Travel',status:'done',notes:''},{id:'v3',name:'COVID-19',dose:'3 doses',date:'05 Sep 2021',facility:'Govt Hospital',doctor:'—',lot:'',category:'COVID-19',status:'done',notes:''}],
+  'PT-010':[{id:'v1',name:'COVID-19',dose:'4 doses',date:'02 May 2025',facility:'Apollo',doctor:'Dr. Venkat',lot:'',category:'COVID-19',status:'done',notes:''},{id:'v2',name:'Influenza',dose:'Annual',date:'14 Jan 2025',facility:'Health Centre',doctor:'Dr. Venkat',lot:'',category:'Annual',status:'done',notes:''},{id:'v3',name:'Hepatitis B',dose:'3 doses',date:'10 Mar 2023',facility:'City Medical',doctor:'Dr. Venkat',lot:'',category:'Routine',status:'done',notes:''},{id:'v4',name:'Varicella',dose:'2 doses',date:'15 Jun 2022',facility:'Apollo Clinic',doctor:'Dr. Venkat',lot:'',category:'Routine',status:'done',notes:''}],
+};
+
+function loadPatients(){try{const s=localStorage.getItem('vt2_patients');return s?JSON.parse(s):DEFAULT_PATIENTS.map(p=>({...p}));}catch(e){return DEFAULT_PATIENTS.map(p=>({...p}));}}
+function loadVax(){try{const s=localStorage.getItem('vt2_vax');return s?JSON.parse(s):JSON.parse(JSON.stringify(DEFAULT_VAX));}catch(e){return JSON.parse(JSON.stringify(DEFAULT_VAX));}}
+function persist(){try{localStorage.setItem('vt2_patients',JSON.stringify(patients));}catch(e){}}
+function persistVax(){try{localStorage.setItem('vt2_vax',JSON.stringify(vaxDB));}catch(e){}}
+
+let patients=loadPatients();
+let vaxDB=loadVax();
+// ensure every patient has a vax array
+patients.forEach(p=>{if(!vaxDB[p.id])vaxDB[p.id]=[];});
+
+let viewMode='card',searchQ='',statusF='',activeId=null,editingId=null,curStep=1,draftTimer=null;
+let vaxModalPatientId=null,vaxStatus='done';
+let certSearchQ='',activeCertId=null;
+
+// ════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════
+function age(dob){const d=new Date(dob),n=new Date();let a=n.getFullYear()-d.getFullYear();if(n.getMonth()<d.getMonth()||(n.getMonth()===d.getMonth()&&n.getDate()<d.getDate()))a--;return isNaN(a)||a<0?'?':a;}
+function ini(p){return((p.fname||'?')[0]+(p.lname||'?')[0]).toUpperCase();}
+function stTag(s){return s==='Active'?'tg-green':s==='Overdue'?'tg-rose':s==='Follow-up'?'tg-amber':'tg-gray';}
+function vDoneCount(id){return(vaxDB[id]||[]).filter(v=>v.status==='done').length;}
+function getFiltered(){
+  return patients.filter(p=>{
+    const q=searchQ.toLowerCase();
+    const mq=!q||(p.fname+' '+p.lname).toLowerCase().includes(q)||p.id.toLowerCase().includes(q)||(p.phone||'').includes(q);
+    return mq&&(!statusF||p.status===statusF);
+  });
+}
+function toast(msg,type='ok'){
+  document.querySelectorAll('.toast-pop').forEach(t=>t.remove());
+  const
+t=document.createElement('div');
+  t.className='toast-pop'+(type==='err'?' err-toast':'');
+  t.innerHTML=`<i class="fas ${type==='err'?'fa-times-circle':'fa-check-circle'}"></i>${msg}`;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),3200);
+}
+function newPID(){return 'PT-'+String(Date.now()).slice(-6);}
+function newVID(){return 'V-'+String(Date.now()).slice(-8);}
+function today(){return new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});}
+function certId(p){return 'CERT-VX-'+new Date().getFullYear()+'-'+p.id.replace('PT-','');}
+
+// ════════════════════════════════════════
+//  RENDER PATIENTS
+// ════════════════════════════════════════
+function renderStats(){
+  const all=patients.length,act=patients.filter(p=>p.status==='Active').length,ov=patients.filter(p=>p.status==='Overdue').length,fu=patients.filter(p=>p.status==='Follow-up').length;
+  document.getElementById('pat-stats').innerHTML=`
+    <div class="sbox"><div class="sbox-icon" style="background:var(--mint-lt);color:var(--mint-dk)"><i class="fas fa-users"></i></div><div><div class="sbox-num">${all}</div><div class="sbox-lbl">Total Patients</div></div></div>
+    <div class="sbox"><div class="sbox-icon" style="background:var(--green-lt);color:var(--green)"><i class="fas fa-check-circle"></i></div><div><div class="sbox-num">${act}</div><div class="sbox-lbl">Active</div></div></div>
+    <div class="sbox"><div class="sbox-icon" style="background:var(--amber-lt);color:#92400e"><i class="fas fa-clock"></i></div><div><div class="sbox-num">${fu}</div><div class="sbox-lbl">Follow-up</div></div></div>
+    <div class="sbox"><div class="sbox-icon" style="background:var(--rose-lt);color:var(--rose)"><i class="fas fa-exclamation-triangle"></i></div><div><div class="sbox-num">${ov}</div><div class="sbox-lbl">Overdue</div></div></div>`;
+}
+
+function renderCards(){
+  const data=getFiltered();
+  document.getElementById('pat-cards').innerHTML=data.length?data.map(p=>`
+    <div class="pcard ${activeId===p.id?'active':''}" onclick="openProfile('${p.id}')">
+      <div class="pc-top">
+        <div class="pc-av" style="background:${p.color}">${ini(p)}</div>
+        <div style="flex:1;min-width:0">
+          <div class="pc-name">${p.fname} ${p.lname}</div>
+          <div class="pc-id">${p.id}</div>
+          <div class="pc-meta">${age(p.dob)} yrs · ${p.gender} · ${p.blood}</div>
+        </div>
+      </div>
+      <div class="pc-rows">
+        <div class="pc-row"><i class="fas fa-phone"></i><span>${p.phone||'—'}</span></div>
+        <div class="pc-row"><i class="fas fa-envelope"></i><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.email||'—'}</span></div>
+        <div class="pc-row"><i class="fas fa-map-marker-alt"></i><span>${(p.address||'').split(',').slice(-2).join(',').trim()||'—'}</span></div>
+      </div>
+      <div class="pc-foot">
+        <div class="pc-vcount"><i class="fas fa-syringe" style="color:var(--mint);font-size:10px"></i><b>${vDoneCount(p.id)}</b> vaccines</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="tag ${stTag(p.status)}">${p.status}</span>
+          <button class="act vax-act" title="Add Vaccine" onclick="event.stopPropagation();openVaxModal('${p.id}')"><i class="fas fa-syringe"></i></button>
+          <button class="act cert-act" title="Certificate" onclick="event.stopPropagation();viewCertFor('${p.id}')"><i class="fas fa-certificate"></i></button>
+          <button class="act" title="Edit" onclick="event.stopPropagation();openPatientForm('${p.id}')"><i class="fas fa-edit"></i></button>
+          <button class="act del" title="Delete" onclick="event.stopPropagation();deletePat('${p.id}')"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+    </div>`).join(''):
+    <div class="empty" style="grid-column:1/-1"><i class="fas fa-users"></i><p>No patients found</p><small>Add your first patient using the button above</small></div>;
+}
+
+function renderTable(){
+  const data=getFiltered();
+document.getElementById('pat-tbody').innerHTML=data.length?data.map(p=>`
+    <tr>
+      <td><div style="display:flex;align-items:center;gap:9px">
+        <div class="pc-av" style="background:${p.color};width:30px;height:30px;font-size:10px;border-radius:50%">${ini(p)}</div>
+        <div><div style="font-weight:600">${p.fname} ${p.lname}</div><div style="font-size:10px;color:var(--text3);font-family:monospace">${p.id}</div></div>
+      </div></td>
+      <td>${age(p.dob)} / ${p.gender[0]}</td>
+      <td><span class="tag tg-navy">${p.blood}</span></td>
+      <td style="font-size:12px">${p.phone||'—'}</td>
+      <td><span class="tag tg-mint">${vDoneCount(p.id)}</span></td>
+      <td><span class="tag ${stTag(p.status)}">${p.status}</span></td>
+      <td style="white-space:nowrap">
+        <button class="act" onclick="openProfile('${p.id}')" title="View Profile"><i class="fas fa-eye"></i></button>
+        <button class="act vax-act" onclick="openVaxModal('${p.id}')" title="Add Vaccine"><i class="fas fa-syringe"></i></button>
+        <button class="act cert-act" onclick="viewCertFor('${p.id}')" title="Certificate"><i class="fas fa-certificate"></i></button>
+        <button class="act" onclick="openPatientForm('${p.id}')" title="Edit"><i class="fas fa-edit"></i></button>
+        <button class="act del" onclick="deletePat('${p.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+      </td>
+    </tr>`).join(''):
+    <tr><td colspan="7"><div class="empty"><i class="fas fa-users"></i><p>No patients found</p></div></td></tr>;
+}
+
+function renderAll(){renderStats();renderCards();renderTable();}
+function filterPat(q){searchQ=q;renderAll();}
+function filterStatus(v){statusF=v;renderAll();}
+function setView(v){
+  viewMode=v;
+  document.getElementById('cards-view').style.display=v==='card'?'':'none';
+  document.getElementById('table-view').style.display=v==='table'?'':'none';
+  document.getElementById('vb-card').classList.toggle('on',v==='card');
+  document.getElementById('vb-table').classList.toggle('on',v==='table');
+}
+
+// ════════════════════════════════════════
+//  PANEL
+// ════════════════════════════════════════
+function showPanel(mode){
+  document.getElementById('panel-profile').style.display=mode==='profile'?'':'none';
+  document.getElementById('panel-form').style.display=mode==='form'?'':'none';
+  document.getElementById('pat-panel').style.display='';
+  document.getElementById('pat-workspace').classList.add('has-panel');
+}
+function closePanel(){
+  document.getElementById('pat-panel').style.display='none';
+  document.getElementById('pat-workspace').classList.remove('has-panel');
+  activeId=null;editingId=null;
+  localStorage.removeItem('vt2_draft');
+  renderCards();renderTable();
+}
+
+// ════════════════════════════════════════
+//  PROFILE
+// ════════════════════════════════════════
+function openProfile(id){
+  activeId=id;
+  const p=patients.find(x=>x.id===id);
+  if(!p)return;
+  const vax=vaxDB[id]||[];
+  const done=vax.filter(v=>v.status==='done');
+  const overdue=vax.filter(v=>v.status==='overdue');
+  const pending=vax.filter(v=>v.status==='pending');
+
+  document.getElementById('pp-title').textContent=p.fname+' '+p.lname;
+  document.getElementById('pp-body').innerHTML=`
+    <div class="prof-banner">
+      <div class="prof-av" style="background:${p.color}">${ini(p)}</div>
+      <div style="flex:1;position:relative;z-index:1">
+        <div class="prof-name">${p.fname} ${p.lname}</div>
+        <div class="prof-sub">${age(p.dob)} yrs · ${p.gender} · Blood Group ${p.blood}</div>
+        <div class="prof-id">${p.id}</div>
+      </div>
+      <span class="tag ${stTag(p.status)}" style="font-size:11px;padding:4px 10px;position:relative;z-index:1">${p.status}</span>
+    </div>
+    <div class="ptabs">
+      <button class="ptab on" onclick="swTab('info',this)"><i class="fas fa-user"></i>Info</button>
+      <button class="ptab" onclick="swTab('vax',this)"><i class="fas fa-syringe"></i>Vaccines (${done.length})</button>
+      <button class="ptab" onclick="swTab('med',this)"><i class="fas fa-heartbeat"></i>Medical</button>
+<button class="ptab" onclick="swTab('cert',this)"><i class="fas fa-certificate"></i>Certificate</button>
+    </div>
+
+    <!-- INFO TAB -->
+    <div class="ptab-body on" id="tb-info">
+      <div class="ifield-grid">
+        <div class="ifield"><div class="ifield-lbl">Date of Birth</div><div class="ifield-val">${p.dob||'—'}</div></div>
+        <div class="ifield"><div class="ifield-lbl">Phone</div><div class="ifield-val">${p.phone||'—'}</div></div>
+        <div class="ifield full"><div class="ifield-lbl">Email</div><div class="ifield-val">${p.email||'—'}</div></div>
+        <div class="ifield full"><div class="ifield-lbl">Address</div><div class="ifield-val">${p.address||'—'}</div></div>
+        <div class="ifield full"><div class="ifield-lbl">Emergency Contact</div><div class="ifield-val">${p.emergency||'—'}</div></div>
+        <div class="ifield"><div class="ifield-lbl">Physician</div><div class="ifield-val">${p.doctor||'—'}</div></div>
+      </div>
+      ${p.notes?`<div style="background:var(--bg2);border-radius:8px;padding:10px 12px;font-size:12.5px;color:var(--text2);border-left:3px solid var(--mint)"><b style="font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;color:var(--text3)">Clinical Notes</b><div style="margin-top:4px">${p.notes}</div></div>`:''}
+    </div>
+
+    <!-- VACCINE TAB -->
+    <div class="ptab-body" id="tb-vax">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+        <div>
+          <span style="font-size:13px;font-weight:600;color:var(--text)">${done.length} vaccine${done.length!==1?'s':''} completed</span>
+          ${overdue.length?`<span style="font-size:11.5px;color:var(--rose);margin-left:8px">· ${overdue.length} overdue</span>`:''}
+          ${pending.length?`<span style="font-size:11.5px;color:var(--amber);margin-left:8px">· ${pending.length} scheduled</span>`:''}
+        </div>
+        <button class="btn btn-purple btn-sm" onclick="openVaxModal('${p.id}')"><i class="fas fa-plus"></i>Add Vaccine</button>
+      </div>
+      ${vax.length?vax.map(v=>`
+        <div class="vax-row-item ${v.status==='overdue'?'overdue':''}">
+          <div class="vri-dot ${v.status}"></div>
+          <div class="vri-info">
+            <div class="vri-name">${v.name} <span class="tag ${v.status==='done'?'tg-mint':v.status==='overdue'?'tg-rose':'tg-amber'}" style="font-size:9.5px;padding:1px 6px">${v.status}</span></div>
+            <div class="vri-dose">${v.dose}${v.lot?' · Lot: '+v.lot:''}</div>
+            <div class="vri-date">${v.date}${v.facility?' · '+v.facility:''}</div>
+            ${v.doctor&&v.doctor!=='—'?`<div class="vri-facility">${v.doctor}</div>`:''}
+            ${v.notes?`<div class="vri-facility" style="color:var(--amber)">${v.notes}</div>`:''}
+          </div>
+          <div class="vri-actions">
+            <button class="act del" title="Remove vaccine" onclick="removeVax('${p.id}','${v.id}')"><i class="fas fa-times"></i></button>
+          </div>
+        </div>`).join(''):
+        `<div class="empty" style="padding:24px 0"><i class="fas fa-syringe"></i><p>No vaccines recorded yet</p><small>Click "Add Vaccine" to get started</small></div>`}
+    </div>
+
+    <!-- MEDICAL TAB -->
+    <div class="ptab-body" id="tb-med">
+      <div class="ifield-grid">
+        <div class="ifield"><div class="ifield-lbl">Blood Group</div><div class="ifield-val" style="font-size:18px;font-weight:700;color:var(--rose)">${p.blood}</div></div>
+        <div class="ifield"><div class="ifield-lbl">Gender</div><div class="ifield-val">${p.gender}</div></div>
+        <div class="ifield full"><div class="ifield-lbl">Known Allergies</div><div class="ifield-val" style="color:${p.allergies&&p.allergies!=='None'?'var(--rose)':'var(--green)'}">${p.allergies||'None'}</div></div>
+        <div class="ifield full"><div class="ifield-lbl">Medical Conditions</div><div class="ifield-val">${p.conditions||'None'}</div></div>
+        ${p.prevvax?`<div class="ifield full"><div class="ifield-lbl">Patient-Reported Vaccines</div><div
+class="ifield-val">${p.prevvax}</div></div>`:''}
+      </div>
+      ${p.allergies&&p.allergies!=='None'?`<div class="allergy-alert"><i class="fas fa-exclamation-triangle"></i><span><b>Allergy Alert:</b> ${p.allergies} — always inform provider before any administration.</span></div>`:''}
+    </div>
+
+    <!-- CERTIFICATE TAB -->
+    <div class="ptab-body" id="tb-cert">
+      <div style="background:linear-gradient(135deg,var(--mint-lt),#fff);border:1.5px solid var(--mint-mid);border-radius:var(--r);padding:18px;text-align:center;margin-bottom:14px">
+        <div style="font-size:32px;margin-bottom:8px">🏆</div>
+        <div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:4px">Vaccination Certificate</div>
+        <div style="font-size:11.5px;color:var(--text3)">ID: ${certId(p)}</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">Issued: ${today()}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding:9px 13px;background:var(--bg2);border-radius:8px">
+          <span style="color:var(--text2)"><i class="fas fa-check-circle" style="color:var(--green);margin-right:6px"></i>Vaccines Completed</span>
+          <b style="color:var(--text)">${done.length}</b>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding:9px 13px;background:${overdue.length?'var(--rose-lt)':'var(--bg2)'};border-radius:8px">
+          <span style="color:var(--text2)"><i class="fas fa-exclamation-circle" style="color:${overdue.length?'var(--rose)':'var(--text3)'};margin-right:6px"></i>Overdue</span>
+          <b style="color:${overdue.length?'var(--rose)':'var(--text)'}">${overdue.length}</b>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:12.5px;padding:9px 13px;background:var(--bg2);border-radius:8px">
+          <span style="color:var(--text2)"><i class="fas fa-shield-virus" style="color:var(--mint);margin-right:6px"></i>Coverage Status</span>
+          <span class="tag ${done.length>=5&&overdue.length===0?'tg-green':'tg-amber'}">${done.length>=5&&overdue.length===0?'Well Protected':'Needs Attention'}</span>
+        </div>
+      </div>
+      <button class="btn btn-mint" style="width:100%;justify-content:center" onclick="viewCertFor('${p.id}')"><i class="fas fa-certificate"></i>View Full Certificate</button>
+      <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-top:8px" onclick="viewCertFor('${p.id}');setTimeout(()=>window.print(),400)"><i class="fas fa-download"></i>Download / Print PDF</button>
+    </div>`;
+
+  document.getElementById('pp-actions').innerHTML=`
+    <button class="btn btn-ghost btn-sm" onclick="closePanel()"><i class="fas fa-arrow-left"></i>Back</button>
+    <button class="btn btn-ghost btn-sm" onclick="openPatientForm('${p.id}')"><i class="fas fa-edit"></i>Edit</button>
+    <button class="btn btn-purple btn-sm" onclick="openVaxModal('${p.id}')"><i class="fas fa-syringe"></i>Add Vaccine</button>
+    <button class="btn btn-mint btn-sm" onclick="viewCertFor('${p.id}')"><i class="fas fa-certificate"></i>Certificate</button>`;
+
+  showPanel('profile');
+  renderCards();renderTable();
+}
+
+function swTab(tab,btn){
+  const panel=btn.closest('.pat-panel');
+  panel.querySelectorAll('.ptab').forEach(b=>b.classList.remove('on'));
+  panel.querySelectorAll('.ptab-body').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const tb=panel.querySelector('#tb-'+tab);
+  if(tb)tb.classList.add('on');
+}
+
+function removeVax(patId,vaxId){
+  if(!confirm('Remove this vaccine record?'))return;
+  vaxDB[patId]=(vaxDB[patId]||[]).filter(v=>v.id!==vaxId);
+  persistVax();
+  renderAll();
+  openProfile(patId);
+  if(activeCertId===patId)showCertFor(patId);
+  toast('Vaccine record removed');
+}
+
+// ════════════════════════════════════════
+//  ADD VACCINE MODAL
+// ════════════════════════════════════════
+function
+openVaxModal(patId){
+  vaxModalPatientId=patId;
+  vaxStatus='done';
+  const p=patients.find(x=>x.id===patId);
+  document.getElementById('vax-modal-patient-name').textContent=p?p.fname+' '+p.lname+' · '+p.id:'';
+  const done=(vaxDB[patId]||[]).filter(v=>v.status==='done').length;
+  document.getElementById('vax-modal-footer-info').textContent=done+' vaccine'+(done!==1?'s':'')+' already on record';
+  // clear form
+  ['v-name','v-lot','v-next','v-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('v-dose').value='';
+  document.getElementById('v-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('v-category').value='Routine';
+  document.getElementById('v-doctor').value=(p&&p.doctor)?p.doctor:'';
+  document.getElementById('v-facility').value='';
+  selectVaxStatus('done');
+  document.getElementById('modal-vax').classList.add('open');
+  setTimeout(()=>document.getElementById('v-name').focus(),200);
+}
+
+function selectVaxStatus(s){
+  vaxStatus=s;
+  ['done','pending','overdue'].forEach(k=>{
+    const el=document.getElementById('vs-'+k);
+    if(el)el.classList.toggle('on',k===s);
+  });
+}
+
+function closeVaxModal(){document.getElementById('modal-vax').classList.remove('open');}
+function handleBackdropClick(e){if(e.target===document.getElementById('modal-vax'))closeVaxModal();}
+
+function gv(id){const el=document.getElementById(id);return el?el.value.trim():'';}
+
+function collectVax(){
+  const name=gv('v-name');
+  const dose=gv('v-dose');
+  const dateVal=gv('v-date');
+  const facility=gv('v-facility');
+  if(!name){toast('Vaccine name is required','err');document.getElementById('v-name').focus();return null;}
+  if(!dose){toast('Please select a dose','err');document.getElementById('v-dose').focus();return null;}
+  if(!dateVal){toast('Date administered is required','err');document.getElementById('v-date').focus();return null;}
+  if(!facility){toast('Healthcare facility is required','err');document.getElementById('v-facility').focus();return null;}
+  const d=new Date(dateVal);
+  const dateStr=d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});
+  return{id:newVID(),name,dose,date:dateStr,facility,doctor:gv('v-doctor')||'—',lot:gv('v-lot'),category:gv('v-category'),status:vaxStatus,notes:gv('v-notes'),nextDue:gv('v-next')};
+}
+
+function saveVaccine(){
+  const rec=collectVax();if(!rec)return;
+  if(!vaxDB[vaxModalPatientId])vaxDB[vaxModalPatientId]=[];
+  vaxDB[vaxModalPatientId].push(rec);
+  persistVax();
+  renderAll();
+  if(activeId===vaxModalPatientId)openProfile(vaxModalPatientId);
+  if(activeCertId===vaxModalPatientId)showCertFor(vaxModalPatientId);
+  closeVaxModal();
+  toast('Vaccine added: '+rec.name);
+}
+
+function saveVaccineAndCert(){
+  const rec=collectVax();if(!rec)return;
+  if(!vaxDB[vaxModalPatientId])vaxDB[vaxModalPatientId]=[];
+  vaxDB[vaxModalPatientId].push(rec);
+  persistVax();
+  renderAll();
+  closeVaxModal();
+  toast('Vaccine saved — opening certificate…');
+  setTimeout(()=>viewCertFor(vaxModalPatientId),300);
+}
+
+// ════════════════════════════════════════
+//  PATIENT FORM (3-step)
+// ════════════════════════════════════════
+function openPatientForm(id){
+  editingId=id;
+  document.getElementById('pf-title').textContent=id?'Edit Patient':'New Patient';
+  const F={fname:'',lname:'',dob:'',gender:'Male',blood:'A+',status:'Active',doctor:'',phone:'',email:'',address:'',emergency:'',allergies:'',conditions:'',prevvax:'',notes:''};
+  if(id){const p=patients.find(x=>x.id===id);if(p)Object.keys(F).forEach(k=>F[k]=p[k]||'');}
+  else{try{const d=JSON.parse(localStorage.getItem('vt2_draft')||'{}');Object.assign(F,d);}catch(e){}}
+  Object.keys(F).forEach(k=>{const el=document.getElementById('f-'+k);if(el)el.value=F[k]||'';});
+  goStep(1);showPanel('form');
+  setTimeout(()=>{const el=document.getElementById('f-fname');if(el)el.focus();},100);
+}
+
+function autosave(){
+  if(editingId)return;
+  clearTimeout(draftTimer);
+  draftTimer=setTimeout(()=>{
+    const
+d={};['fname','lname','dob','gender','blood','status','doctor','phone','email','address','emergency','allergies','conditions','prevvax','notes'].forEach(k=>{const el=document.getElementById('f-'+k);if(el)d[k]=el.value.trim();});
+    try{localStorage.setItem('vt2_draft',JSON.stringify(d));}catch(e){}
+    const n=document.getElementById('f-autosave-note');
+    if(n){n.style.display='block';setTimeout(()=>n.style.display='none',2500);}
+  },700);
+}
+
+function goStep(n){
+  curStep=n;
+  [1,2,3].forEach(i=>{
+    const st=document.getElementById('st'+i),sb=document.getElementById('sb'+i),sl=document.getElementById('sl'+i);
+    if(st)st.className='step'+(i===n?' on':i<n?' done':'');
+    if(sb)sb.className='step-body'+(i===n?' on':'');
+    if(sl)sl.className='step-line'+(i<n?' done':'');
+  });
+}
+
+function savePatient(){
+  const fname=gv('f-fname'),lname=gv('f-lname'),dob=gv('f-dob');
+  if(!fname){toast('First name is required','err');goStep(1);document.getElementById('f-fname').classList.add('err');return;}
+  if(!lname){toast('Last name is required','err');goStep(1);document.getElementById('f-lname').classList.add('err');return;}
+  if(!dob){toast('Date of birth is required','err');goStep(1);document.getElementById('f-dob').classList.add('err');return;}
+  ['f-fname','f-lname','f-dob'].forEach(id=>document.getElementById(id).classList.remove('err'));
+  const data={fname,lname,dob,gender:gv('f-gender'),blood:gv('f-blood'),status:gv('f-status'),doctor:gv('f-doctor'),phone:gv('f-phone'),email:gv('f-email'),address:gv('f-address'),emergency:gv('f-emergency'),allergies:gv('f-allergies')||'None',conditions:gv('f-conditions')||'None',prevvax:gv('f-prevvax'),notes:gv('f-notes')};
+  if(editingId){
+    const idx=patients.findIndex(p=>p.id===editingId);
+    if(idx>-1){patients[idx]={...patients[idx],...data};persist();toast('Patient updated — '+fname+' '+lname);renderAll();openProfile(editingId);}
+  }else{
+    const id=newPID();
+    patients.push({id,...data,color:COLORS[patients.length%COLORS.length]});
+    if(!vaxDB[id])vaxDB[id]=[];
+    persist();persistVax();
+    localStorage.removeItem('vt2_draft');
+    toast('Patient added — '+fname+' '+lname);
+    renderAll();openProfile(id);
+  }
+}
+
+// ════════════════════════════════════════
+//  DELETE PATIENT
+// ════════════════════════════════════════
+function deletePat(id){
+  const p=patients.find(x=>x.id===id);if(!p)return;
+  if(!confirm('Delete '+p.fname+' '+p.lname+'?\nThis will remove all their vaccine records and certificate.'))return;
+  patients=patients.filter(x=>x.id!==id);
+  delete vaxDB[id];
+  persist();persistVax();
+  if(activeId===id)closePanel();
+  if(activeCertId===id){activeCertId=null;document.getElementById('cert-display').innerHTML='<div class="cert-placeholder"><i class="fas fa-certificate"></i><h3>Select a Patient</h3><p>Choose from the list to view their certificate</p></div>';document.getElementById('cert-toolbar').style.display='none';}
+  renderAll();
+  if(document.getElementById('page-certificates').classList.contains('on'))renderCertList();
+  toast('Patient removed');
+}
+
+// ════════════════════════════════════════
+//  CERTIFICATES
+// ════════════════════════════════════════
+function renderCertList(){
+  const q=certSearchQ.toLowerCase();
+  const data=patients.filter(p=>!q||(p.fname+' '+p.lname).toLowerCase().includes(q)||p.id.toLowerCase().includes(q));
+  document.getElementById('cert-count').textContent=data.length;
+  document.getElementById('cert-pat-list').innerHTML=data.map(p=>`
+    <div class="cpr ${activeCertId===p.id?'on':''}" onclick="showCertFor('${p.id}')">
+      <div class="cpr-av" style="background:${p.color}">${ini(p)}</div>
+      <div style="flex:1;min-width:0">
+        <div class="cpr-name">${p.fname} ${p.lname}</div>
+        <div class="cpr-id">${p.id} · ${p.blood}</div>
+      </div>
+      <div class="cpr-right">
+        <span class="tag ${stTag(p.status)}" style="font-size:10px;padding:2px 7px">${p.status}</span>
+        <div class="cpr-vcount"><i class="fas fa-syringe" style="margin-right:3px"></i>${vDoneCount(p.id)} vaccines</div>
+      </div>
